@@ -1,4 +1,6 @@
-from Chessgui import *
+from Chessgui import Chessgui
+from Chessboard import Chessboard
+from Chesspiece import Chesspiece, WHITE, BLACK
 
 
 class Gamelogic:
@@ -23,7 +25,8 @@ class Gamelogic:
         self.chessboard.board[x][y] = piece
 
     def get_winner(self):
-        if not self.gameover: return None
+        if not self.gameover:
+            return None
         return BLACK if self.get_king(WHITE).checked else WHITE
 
     def get_king(self, color: int):
@@ -38,8 +41,10 @@ class Gamelogic:
         piece = self.get_piece(src)
         board = self.chessboard.board
         if piece.type == "King":
-            if piece.color == WHITE: self.white_pos = dest
-            else: self.black_pos = dest
+            if piece.color == WHITE:
+                self.white_pos = dest
+            else:
+                self.black_pos = dest
         piece.move_piece(dest, board)
 
     def available_move(self, pos: list):
@@ -57,8 +62,10 @@ class Gamelogic:
         src_piece = self.get_piece(src_pos)
         dest_piece = self.get_piece(dest_pos)
 
-        if src_piece is None or src_piece.color != self.turn: return False
-        if dest_piece is not None and src_piece.color == dest_piece.color: return False
+        if src_piece is None or src_piece.color != self.turn:
+            return False
+        if dest_piece is not None and src_piece.color == dest_piece.color:
+            return False
 
         if self.can_move(src_pos, dest_pos):
             self.move_piece(src_pos, dest_pos)
@@ -82,12 +89,15 @@ class Gamelogic:
         src_piece = self.get_piece(src)
         dest_piece = self.get_piece(dest)
 
-        if not src_piece.can_move(dest, self.chessboard.board): return False
+        if not src_piece.can_move(dest, self.chessboard.board):
+            return False
 
         self.set_piece(src, None)
         self.set_piece(dest, src_piece)
 
-        king_pos = dest if src_piece.type == "King" else self.get_king(src_piece.color).pos
+        king_pos = (
+            dest if src_piece.type == "King" else self.get_king(src_piece.color).pos
+        )
         king = self.get_piece(king_pos)
 
         checked = True if king.being_checked(king.pos, self.chessboard.board) else False
@@ -99,14 +109,17 @@ class Gamelogic:
 
     def game_over(self):
         w_king, b_king = self.get_king(WHITE), self.get_king(BLACK)
-        if not w_king.checked and not b_king.checked: return
+        if not w_king.checked and not b_king.checked:
+            return
 
         for i in range(8):
             for j in range(8):
                 pos = [i, j]
                 piece = self.get_piece(pos)
-                if piece is None or piece.color != self.turn: continue
-                if len(self.available_move(pos)) != 0: return
+                if piece is None or piece.color != self.turn:
+                    continue
+                if len(self.available_move(pos)) != 0:
+                    return
 
         self.gameover = True
 
