@@ -1,12 +1,14 @@
 # chess
-### A basic GUI chess game written in python
-##### Chess images come from [wiki](https://en.wikipedia.org/wiki/Chess#Setup)
-##### I'm new to chess. If there are any errors, please contact me.
+## A basic GUI chess game written in python
 
 Note:
-For simplicity, we promote pawn to queen when promotion occurs rather than to make a choice between knight, rook, queen and bishop. (You can use a popup messagebox to make a selection)
+Chess images come from [wiki](https://en.wikipedia.org/wiki/Chess#Setup)
 
-This program is tested using conda python3.8 environment.
-GUI part needs to use tkinter, the default python3 environment in macOS doesn't work.
+For simplicity, we promote pawn to queen when promotion occurs rather than to make a choice between knight, rook, queen and bishop. (You can use a popup messagebox to make a selection as well)
 
-To run the program, run "python3 Gamelogic.py" in command line
+This program is tested using conda python3.8 environment. The default python3 in macOS doesn't work.
+
+To run the program, run "python3 Gamelogic.py" in command line. If there are any errors, please contact me.
+
+A video of this game: [How to play](https://youtu.be/S-tpKYrxR9k)
+
