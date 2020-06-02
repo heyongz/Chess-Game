@@ -25,6 +25,9 @@ class Chesspiece:
         bd[dx][dy] = self
 
 
+""" ------------------------ Inherent From Basic Class ------------------------ """
+
+
 class Rook(Chesspiece):
     def __init__(self, pos: list, color: int):
         super().__init__(pos, color)
@@ -33,10 +36,8 @@ class Rook(Chesspiece):
     def can_move(self, dest: list, bd: list):
         if not super().can_move(dest, bd): return False
         [dx, dy], [cx, cy] = dest, self.pos
-
         # Dest and current position must be in a line
         if dx != cx and dy != cy: return False
-
         # Can't leap over other pieces
         if dx == cx:
             for y in range(min(dy, cy)+1, max(dy, cy)):
@@ -44,7 +45,6 @@ class Rook(Chesspiece):
         if dy == cy:
             for x in range(min(dx, cx)+1, max(dx, cx)):
                 if bd[x][dy] is not None: return False
-
         return True
 
 
@@ -56,13 +56,10 @@ class Bishop(Chesspiece):
     def can_move(self, dest: list, bd: list):
         if not super().can_move(dest, bd): return False
         [dx, dy], [cx, cy] = dest, self.pos
-
         # Dest and current position must be in a diagonal line
         if abs(dx-cx) != abs(dy-cy): return False
-
         delta_x = 1 if dx > cx else -1
         delta_y = 1 if dy > cy else -1
-
         # Can't leap over other pieces
         while True:
             cx += delta_x
@@ -80,11 +77,9 @@ class Queen(Chesspiece):
 
     def can_move(self, dest: list, bd: list):
         if not super().can_move(dest, bd): return False
-
         # Queen combines the power of a rook and bishop
         tmp_rook = Rook(self.pos, self.color)
         tmp_bishop = Bishop(self.pos, self.color)
-
         if tmp_rook.can_move(dest, bd) or tmp_bishop.can_move(dest, bd): return True
         return False
 
@@ -114,20 +109,16 @@ class Pawn(Chesspiece):
 
         if self.color == WHITE and dy >= cy: return False
         if self.color == BLACK and dy <= cy: return False
-
         # moving direction of pawn
         direction = -1 if self.color == WHITE else 1
 
         if cx == dx:
-            if abs(cy - dy) == 1:
-                if bd[cx][dy] is None: return True
-
+            if abs(cy - dy) == 1 and bd[cx][dy] is None: return True
             if abs(cy - dy) == 2:
                 if self.moved: return False
                 if bd[cx][cy+direction] is None and bd[cx][dy] is None: return True
             return False
 
-        # cx != dx
         if abs(cx - dx) != 1: return False
         if abs(cy - dy) != 1 or bd[dx][cy + direction] is None: return False
         if bd[dx][cy + direction] == self.color: return False
@@ -136,7 +127,6 @@ class Pawn(Chesspiece):
     def move_piece(self, dest: list, bd: list):
         super().move_piece(dest, bd)
         [x, y] = dest
-
         # Promotion (for simplicity, promote to queen)
         if (self.color == WHITE and y == 0) or (self.color == BLACK and y == 7):
             bd[x][y] = Queen(dest, self.color)
@@ -182,10 +172,8 @@ class King(Chesspiece):
         # we use the src piece to overwrite dest piece. If dest piece happens to be king pos
         # when we call being_checked, we can't find king_pos. You can treat this as this king
         # is being checked because it can overwrite by piece with different color
-        if king_pos is None:
-            return True
-        [i, j] = king_pos
-        [x, y] = self.pos
+        if king_pos is None: return True
+        [i, j], [x, y] = king_pos, self.pos
         return True if abs(x-i) <= 1 and abs(y-j) <= 1 else False
 
     def move_piece(self, dest: list, bd: list):
@@ -194,7 +182,7 @@ class King(Chesspiece):
         self.checked = False
 
         # Castling
-        if abs(dx-cx) > 1:
+        if abs(dx - cx) > 1:
             rook = bd[0][cy] if dx < cx else bd[7][cy]
             pos = [cx-1, cy] if dx < cx else [cx+1, cy]
             rook.move_piece(pos, bd)
