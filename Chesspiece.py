@@ -198,7 +198,7 @@ class King(Chesspiece):
 
         # Move no more than one square or make a special move known as castling
         if abs(dx - cx) > 1 or abs(dy - cy) > 1:
-            if not self.castling(dest, bd):
+            if not self.castling(dest, bd, move_num):
                 return False
 
         self.pos = dest
@@ -254,7 +254,7 @@ class King(Chesspiece):
             pos = [cx - 1, cy] if dx < cx else [cx + 1, cy]
             rook.move_piece(pos, bd)
 
-    def castling(self, dest: list, bd: list):
+    def castling(self, dest: list, bd: list, move_num: int):
         [dx, dy], [cx, cy] = dest, self.pos
         if dy != cy:
             return False
@@ -275,6 +275,6 @@ class King(Chesspiece):
         # The king can't be in check, nor can the king pass through
         # any square that is under attack by an enemy piece
         for x in range(min(cx, dx), max(cx, dx) + 1):
-            if self.being_checked([x, cy], bd):
+            if self.being_checked([x, cy], bd, move_num):
                 return False
         return True
