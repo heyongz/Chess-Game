@@ -4,7 +4,7 @@
 Note:
 Chess images come from [wiki](https://en.wikipedia.org/wiki/Chess#Setup)
 
-For simplicity, we promote pawn to queen when promotion occurs rather than to make a choice between knight, rook, queen and bishop. (You can use a popup messagebox to make a selection as well)
+For simplicity, we promote pawn to queen when promotion occurs rather than to make a choice between knight, rook, queen and bishop. (You can use a popup messagebox to make a selection as well) And we didn't write En passant, which is a special move of pawn
 
 This program is tested using conda python3.8 environment. The default python3 in macOS doesn't work.
 
