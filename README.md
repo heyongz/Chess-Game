@@ -10,5 +10,5 @@ This program is tested using conda python3.8 environment. The default python3 in
 
 To run the program, run "python3 Gamelogic.py" in command line. If there are any errors, please contact me.
 
-A video of this game: [How to play](https://youtu.be/S-tpKYrxR9k)
+A video of this game: [How to play](https://youtu.be/5pfP9c7v3Gk)
 
