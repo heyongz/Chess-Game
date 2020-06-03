@@ -6,10 +6,10 @@ class Chesspiece:
     def __init__(self, pos: list, color: int):
         self.pos = pos
         self.color = color
-        self.moved = False
+        self.move_num = None
         self.type = None
 
-    def can_move(self, dest: list, bd: list):
+    def can_move(self, dest: list, bd: list, move_num: int):
         [x, y] = dest
         # Within chessboard
         if not (0 <= x <= 7 and 0 <= y <= 7):
@@ -19,10 +19,10 @@ class Chesspiece:
             return False
         return True
 
-    def move_piece(self, dest: list, bd: list):
+    def move_piece(self, dest: list, bd: list, move_num: int):
         [dx, dy], [cx, cy] = dest, self.pos
         self.pos = dest
-        self.moved = True
+        self.move_num = move_num
         bd[cx][cy] = None
         bd[dx][dy] = self
 
@@ -35,8 +35,8 @@ class Rook(Chesspiece):
         super().__init__(pos, color)
         self.type = "Rook"
 
-    def can_move(self, dest: list, bd: list):
-        if not super().can_move(dest, bd):
+    def can_move(self, dest: list, bd: list, move_num: int):
+        if not super().can_move(dest, bd, move_num):
             return False
         [dx, dy], [cx, cy] = dest, self.pos
         # Dest and current position must be in a line
@@ -59,8 +59,8 @@ class Bishop(Chesspiece):
         super().__init__(pos, color)
         self.type = "Bishop"
 
-    def can_move(self, dest: list, bd: list):
-        if not super().can_move(dest, bd):
+    def can_move(self, dest: list, bd: list, move_num: int):
+        if not super().can_move(dest, bd, move_num):
             return False
         [dx, dy], [cx, cy] = dest, self.pos
         # Dest and current position must be in a diagonal line
@@ -85,13 +85,15 @@ class Queen(Chesspiece):
         super().__init__(pos, color)
         self.type = "Queen"
 
-    def can_move(self, dest: list, bd: list):
-        if not super().can_move(dest, bd):
+    def can_move(self, dest: list, bd: list, move_num):
+        if not super().can_move(dest, bd, move_num):
             return False
         # Queen combines the power of a rook and bishop
         tmp_rook = Rook(self.pos, self.color)
         tmp_bishop = Bishop(self.pos, self.color)
-        if tmp_rook.can_move(dest, bd) or tmp_bishop.can_move(dest, bd):
+        if tmp_rook.can_move(dest, bd, move_num) or tmp_bishop.can_move(
+            dest, bd, move_num
+        ):
             return True
         return False
 
@@ -101,8 +103,8 @@ class Knight(Chesspiece):
         super().__init__(pos, color)
         self.type = "Knight"
 
-    def can_move(self, dest, bd):
-        if not super().can_move(dest, bd):
+    def can_move(self, dest: list, bd: list, move_num: int):
+        if not super().can_move(dest, bd, move_num):
             return False
         [dx, dy], [cx, cy] = dest, self.pos
 
@@ -117,9 +119,10 @@ class Pawn(Chesspiece):
     def __init__(self, pos: list, color: int):
         super().__init__(pos, color)
         self.type = "Pawn"
+        self.last_move = None
 
-    def can_move(self, dest: list, bd: list):
-        if not super().can_move(dest, bd):
+    def can_move(self, dest: list, bd: list, move_num: int):
+        if not super().can_move(dest, bd, move_num):
             return False
         [dx, dy], [cx, cy] = dest, self.pos
 
@@ -134,26 +137,52 @@ class Pawn(Chesspiece):
             if abs(cy - dy) == 1 and bd[cx][dy] is None:
                 return True
             if abs(cy - dy) == 2:
-                if self.moved:
+                if self.move_num is not None:
                     return False
                 if bd[cx][cy + direction] is None and bd[cx][dy] is None:
                     return True
             return False
 
-        if abs(cx - dx) != 1:
+        if abs(cx - dx) != 1 or abs(cy - dy) != 1:
             return False
-        if abs(cy - dy) != 1 or bd[dx][cy + direction] is None:
+
+        if bd[dx][dy] is None:
+            if self.en_passant(dest, bd, move_num):
+                return True
             return False
-        if bd[dx][cy + direction] == self.color:
+
+        if bd[dx][dy].color == self.color:
             return False
         return True
 
-    def move_piece(self, dest: list, bd: list):
-        super().move_piece(dest, bd)
-        [x, y] = dest
+    def en_passant(self, dest: list, bd: list, move_num: int):
+        [dx, _], [_, cy] = dest, self.pos
+        neighbor = bd[dx][cy]
+
+        if neighbor is None:
+            return False
+        if neighbor.color == self.color:
+            return False
+
+        # neighbor just moved and made a two-step advance
+        if neighbor.last_move == 2 and neighbor.move_num == move_num - 1:
+            return True
+        return False
+
+    def move_piece(self, dest: list, bd: list, move_num: int):
+        [dx, dy], [cx, cy] = dest, self.pos
+        dest_piece = bd[dx][dy]
+
+        super().move_piece(dest, bd, move_num)
+        self.last_move = abs(dy - cy)
+
+        if abs(dx - cx) == 1 and abs(dy - cy) == 1:
+            if dest_piece is None:
+                bd[dx][cy] = None
+
         # Promotion (for simplicity, promote to queen)
-        if (self.color == WHITE and y == 0) or (self.color == BLACK and y == 7):
-            bd[x][y] = Queen(dest, self.color)
+        if (self.color == WHITE and dy == 0) or (self.color == BLACK and dy == 7):
+            bd[dx][dy] = Queen(dest, self.color)
 
 
 class King(Chesspiece):
@@ -162,8 +191,8 @@ class King(Chesspiece):
         self.type = "King"
         self.checked = False
 
-    def can_move(self, dest: list, bd: list):
-        if not super().can_move(dest, bd):
+    def can_move(self, dest: list, bd: list, move_num: int):
+        if not super().can_move(dest, bd, move_num):
             return False
         [dx, dy], [cx, cy] = dest, self.pos
 
@@ -174,15 +203,23 @@ class King(Chesspiece):
 
         self.pos = dest
         backup = bd[dx][dy]
+        
+        src_move_num = self.move_num
+        dest_move_num = backup.move_num if backup is not None else None
+        
         bd[cx][cy], bd[dx][dy] = None, self
 
-        checked = self.being_checked(dest, bd)
+        checked = self.being_checked(dest, bd, move_num+1)
+
         self.pos = [cx, cy]
+        self.move_num = src_move_num
+        if backup is not None: backup.move_num = dest_move_num
+
         bd[cx][cy], bd[dx][dy] = self, backup
 
         return False if checked else True
 
-    def being_checked(self, pos: list, bd: list):
+    def being_checked(self, pos: list, bd: list, move_num: int):
         king_pos = None
         for i in range(8):
             for j in range(8):
@@ -193,7 +230,7 @@ class King(Chesspiece):
                 if chess.type == "King":
                     king_pos = [i, j]
                     continue
-                if chess.can_move(pos, bd):
+                if chess.can_move(pos, bd, move_num):
                     return True
 
         # The reason that we add this if-statement is that when we call can_move in gamelogic
@@ -205,9 +242,9 @@ class King(Chesspiece):
         [i, j], [x, y] = king_pos, self.pos
         return True if abs(x - i) <= 1 and abs(y - j) <= 1 else False
 
-    def move_piece(self, dest: list, bd: list):
+    def move_piece(self, dest: list, bd: list, move_num: int):
         [dx, _], [cx, cy] = dest, self.pos
-        super().move_piece(dest, bd)
+        super().move_piece(dest, bd, move_num)
         self.checked = False
 
         # Castling
@@ -226,7 +263,7 @@ class King(Chesspiece):
         rook = bd[0][cy] if dx < cx else bd[7][cy]
 
         # Neither the king nor the rook has previously moved
-        if rook is None or rook.moved or self.moved:
+        if rook is None or rook.move_num is not None or self.move_num is not None:
             return False
 
         # There are no pieces between the king and the rook
@@ -240,4 +277,3 @@ class King(Chesspiece):
             if self.being_checked([x, cy], bd):
                 return False
         return True
-
