@@ -76,6 +76,9 @@ class Chessgui:
         if self.src_pos is None:
             return
 
+        # If you want to make click event reponsive, needs to modify this part
+        # self.logic.process takes much time in some situation
+
         if self.logic.process(self.src_pos, self.dest_pos):
             # Successfully make a movement, clear clicks
             self.src_pos = None
