@@ -104,6 +104,7 @@ class Chessgui:
     """ ------------------------ GUI Drawing ------------------------ """
 
     def draw_canvas(self):
+        self.canvas.delete("all")
         self.img_holder = []
         board = self.logic.chessboard.board
         flag = True
