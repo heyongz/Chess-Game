@@ -74,6 +74,9 @@ class Chessgui:
 
         # Click only once, return and waiting for next click
         if self.src_pos is None:
+            dest = self.logic.get_piece(self.dest_pos)
+            if dest is not None and dest.color != self.logic.turn:
+                self.dest_pos = None
             return
 
         # If you want to make click event reponsive, needs to modify this part
