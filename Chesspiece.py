@@ -252,7 +252,7 @@ class King(Chesspiece):
         if abs(dx - cx) > 1:
             rook = bd[0][cy] if dx < cx else bd[7][cy]
             pos = [cx - 1, cy] if dx < cx else [cx + 1, cy]
-            rook.move_piece(pos, bd)
+            rook.move_piece(pos, bd, move_num)
 
     def castling(self, dest: list, bd: list, move_num: int):
         [dx, dy], [cx, cy] = dest, self.pos
