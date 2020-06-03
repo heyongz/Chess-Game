@@ -159,7 +159,7 @@ class Pawn(Chesspiece):
         [dx, _], [_, cy] = dest, self.pos
         neighbor = bd[dx][cy]
 
-        if neighbor is None:
+        if neighbor is None or neighbor.type != "Pawn":
             return False
         if neighbor.color == self.color:
             return False
@@ -203,17 +203,18 @@ class King(Chesspiece):
 
         self.pos = dest
         backup = bd[dx][dy]
-        
+
         src_move_num = self.move_num
         dest_move_num = backup.move_num if backup is not None else None
-        
+
         bd[cx][cy], bd[dx][dy] = None, self
 
-        checked = self.being_checked(dest, bd, move_num+1)
+        checked = self.being_checked(dest, bd, move_num + 1)
 
         self.pos = [cx, cy]
         self.move_num = src_move_num
-        if backup is not None: backup.move_num = dest_move_num
+        if backup is not None:
+            backup.move_num = dest_move_num
 
         bd[cx][cy], bd[dx][dy] = self, backup
 
